@@ -1,11 +1,9 @@
 # Builds the static demo (web/ in demo mode + web/demo-public/) and publishes it to GitHub Pages.
-# Repo Settings → Pages → Source must be "GitHub Actions".
+# Currently the demo is published with ./scripts/deploy_demo.sh (gh-pages branch) instead.
+# To switch to this workflow: Settings → Pages → Source "GitHub Actions", then add a `push` trigger below.
 name: Deploy demo to GitHub Pages
 
 on:
-  push:
-    branches: [main]
-    paths: ["web/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:

@@ -57,11 +57,13 @@ Use `./uvw …` instead of `uv …` and `./nodew npm …` instead of `npm …`. 
 ## GitHub Pages demo
 The demo is the same frontend built in demo mode (`VITE_DEMO=1` from `web/.env.demo`). It has no backend: it reads
 `web/demo-public/demo/` (job, result, review, thumbnails, a 720p `video.mp4`), saves review edits to `localStorage`,
-and builds CSV/JSON exports in the browser. `.github/workflows/pages.yml` deploys it on every push to `main` that touches `web/`.
+and builds CSV/JSON exports in the browser. Pages serves the `gh-pages` branch, which `scripts/deploy_demo.sh` builds and pushes.
+(`.github/workflows/pages.yml` does the same with Actions; it is manual-only for now.)
 
-To swap in another analysed match:
+To update the live demo (e.g. after UI changes, or to swap in another analysed match):
 ```zsh
-./uvw run python scripts/make_demo.py <job-id>    # from uploads/; re-encodes the video (keep it < 100 MB)
-cd web && ../nodew npm run build:demo && ../nodew npm run preview:demo   # check at http://localhost:4173
-git add web/demo-public && git commit -m "Update demo match" && git push
+./uvw run python scripts/make_demo.py <job-id>    # optional: new match from uploads/ (video kept < 100 MB)
+cd web && ../nodew npm run build:demo && ../nodew npm run preview:demo && cd ..   # check at http://localhost:4173
+./scripts/deploy_demo.sh                          # publish to gh-pages
+git add -A && git commit -m "Update demo" && git push
 ```
