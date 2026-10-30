@@ -1,0 +1,29 @@
+#!/bin/zsh
+# Project-local Node/npm wrapper: node binary and npm cache stay in this folder (.tools/).
+# First run downloads the latest Node 22 LTS for this machine (checksum-verified).
+# Usage: ./nodew npm install | ./nodew npm run build | ./nodew node -v
+set -e
+HERE="${0:A:h}"
+NODE_DIR="$HERE/.tools/node"
+if [[ ! -x "$NODE_DIR/bin/node" ]]; then
+  case "$(uname -s)-$(uname -m)" in
+    Darwin-arm64) PLAT=darwin-arm64 ;; Darwin-x86_64) PLAT=darwin-x64 ;;
+    Linux-x86_64) PLAT=linux-x64 ;;    Linux-aarch64) PLAT=linux-arm64 ;;
+    *) echo "nodew: unsupported platform $(uname -s)-$(uname -m)" >&2; exit 1 ;;
+  esac
+  BASE=https://nodejs.org/dist/latest-v22.x
+  mkdir -p "$HERE/.tools"
+  SUMS=$(curl -fsSL "$BASE/SHASUMS256.txt")
+  F=$(print -r -- "$SUMS" | grep -o "node-v[0-9.]*-$PLAT.tar.gz" | head -1)
+  echo "nodew: downloading $F into .tools/ …" >&2
+  curl -fsSL "$BASE/$F" -o "$HERE/.tools/$F"
+  (cd "$HERE/.tools" && print -r -- "$SUMS" | grep " $F\$" | shasum -a 256 -c - >/dev/null)
+  tar -xzf "$HERE/.tools/$F" -C "$HERE/.tools" && rm "$HERE/.tools/$F"
+  mv "$HERE/.tools/${F%.tar.gz}" "$NODE_DIR"
+fi
+export PATH="$NODE_DIR/bin:$PATH"
+export npm_config_cache="$HERE/.tools/npm-cache"
+export npm_config_update_notifier=false
+export npm_config_fund=false
+export npm_config_include=dev      # build tools are devDependencies; works even if NODE_ENV=production
+exec "$@"

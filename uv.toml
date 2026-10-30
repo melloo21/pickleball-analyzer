@@ -1,0 +1,3 @@
+# Project uv settings. Use ./uvw instead of plain `uv`: it also points the Python install dir,
+# cache, tools and venv at folders inside this project, so nothing is written elsewhere.
+python-preference = "only-managed"   # never use or modify system / Homebrew Python

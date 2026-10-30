@@ -1,0 +1,12 @@
+#!/bin/zsh
+# Project-local uv wrapper: Python, cache, venv and tools all stay in this folder.
+# Usage: ./uvw sync | ./uvw run python ... | ./uvw add <pkg>
+HERE="${0:A:h}"
+export UV_PYTHON_INSTALL_DIR="$HERE/.uv/python"
+export UV_CACHE_DIR="$HERE/.uv/cache"
+export UV_TOOL_DIR="$HERE/.uv/tools"
+export UV_TOOL_BIN_DIR="$HERE/.uv/bin"
+export UV_PROJECT_ENVIRONMENT="$HERE/.venv"
+export UV_PYTHON_PREFERENCE="only-managed"
+export UV_PYTHON_INSTALL_BIN=0   # don't drop python shims into ~/.local/bin
+cd "$HERE" && exec uv "$@"

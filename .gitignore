@@ -1,0 +1,18 @@
+# project-local toolchains (recreated by ./uvw sync and ./start.sh)
+.uv/
+.venv/
+.tools/
+web/node_modules/
+web/dist/
+
+# user data and scratch
+uploads/
+work/
+sample_videos/*
+!sample_videos/README.md
+
+# misc
+__pycache__/
+*.pyc
+.DS_Store
+*.log
