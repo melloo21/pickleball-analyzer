@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:demo": "tsc --noEmit && vite build --mode demo",
+    "preview:demo": "vite preview --mode demo --port 4173",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

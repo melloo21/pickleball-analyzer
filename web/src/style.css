@@ -25,6 +25,8 @@ kbd { background: #f1f4ea; border: 1px solid #dfe5d4; border-bottom-width: 2px; 
 .topbar nav { display: flex; gap: 6px; }
 .topbar nav a { text-decoration: none; padding: 8px 14px; border-radius: 999px; font-weight: 600; font-size: 14px; }
 .topbar nav a:hover, .topbar nav a.on { background: #fff; box-shadow: var(--sh); }
+.demo-bar { padding: 8px 28px; background: #fff7d6; border-bottom: 1px solid #f4e3a1; font-size: 13px; text-align: center; }
+.demo-bar a { color: var(--court); font-weight: 700; }
 
 /* ---------- buttons */
 .btn { appearance: none; border: 1px solid var(--line); background: #fff; color: var(--ink); border-radius: 999px;

@@ -1,5 +1,8 @@
 # 🏓 Dink Lab: Pickleball Analyzer
 
+**▶ Live demo: https://melloo21.github.io/pickleball-analyzer/**: one pre-analysed match, fully interactive
+(review, relabel, score, export). Uploading your own video needs the backend, so run it locally (below).
+
 Upload a match video → rallies, shots and points tagged with timestamps → check them by hand and build the score.
 
 * **Frontend:** TypeScript + Vite (`web/`), built into `web/dist` and served by the backend
@@ -50,3 +53,15 @@ Point **winners are not detected automatically yet**; you pick them on the rally
 | `uploads/<job>/` | uploaded video, result.json, review.json, thumbnails |
 
 Use `./uvw …` instead of `uv …` and `./nodew npm …` instead of `npm …`. Delete the folder and nothing is left behind.
+
+## GitHub Pages demo
+The demo is the same frontend built in demo mode (`VITE_DEMO=1` from `web/.env.demo`). It has no backend: it reads
+`web/demo-public/demo/` (job, result, review, thumbnails, a 720p `video.mp4`), saves review edits to `localStorage`,
+and builds CSV/JSON exports in the browser. `.github/workflows/pages.yml` deploys it on every push to `main` that touches `web/`.
+
+To swap in another analysed match:
+```zsh
+./uvw run python scripts/make_demo.py <job-id>    # from uploads/; re-encodes the video (keep it < 100 MB)
+cd web && ../nodew npm run build:demo && ../nodew npm run preview:demo   # check at http://localhost:4173
+git add web/demo-public && git commit -m "Update demo match" && git push
+```

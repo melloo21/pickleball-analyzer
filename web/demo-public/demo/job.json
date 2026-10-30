@@ -1,0 +1,26 @@
+{
+ "id": "demo",
+ "name": "Pickleball_game.webm",
+ "created": 1793363010.232929,
+ "state": "done",
+ "stage": "Done",
+ "progress": 1.0,
+ "preset": "balanced",
+ "teams": {
+  "A": "Near (white)",
+  "B": "Far (red/grey)"
+ },
+ "scoring": "sideout",
+ "summary": {
+  "rallies": 11,
+  "shots": 116,
+  "points": 11,
+  "avg_shots_per_rally": 10.5,
+  "longest_rally_shots": 27,
+  "longest_rally_s": 24.2,
+  "play_time_s": 96.5,
+  "duration_s": 237.2,
+  "audio_candidates": 477
+ },
+ "size_bytes": 52558490
+}

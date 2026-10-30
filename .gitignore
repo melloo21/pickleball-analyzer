@@ -4,6 +4,7 @@
 .tools/
 web/node_modules/
 web/dist/
+web/dist-demo/
 
 # user data and scratch
 uploads/

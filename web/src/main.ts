@@ -1,5 +1,5 @@
 import "./style.css";
-import { api, type Job, type Point, type Rally, type RallyStatus, type Result, type Review, type Shot, type Team } from "./api";
+import { api, DEMO, download, toCsv, type Job, type Point, type Rally, type RallyStatus, type Result, type Review, type Shot, type Team } from "./api";
 import { replay } from "./score";
 
 /* ------------------------------------------------------------------ helpers */
@@ -26,10 +26,13 @@ function header(active: "home" | "job") {
   <header class="topbar">
     <a class="brand" href="#/"><span class="ball">🏓</span><span>Dink<b>Lab</b></span><small>pickleball analyzer</small></a>
     <nav>
+      ${DEMO ? `<a href="https://github.com/melloo21/pickleball-analyzer" target="_blank" rel="noopener">⭐ GitHub</a>` : `
       <a href="#/" class="${active === "home" ? "on" : ""}">⬆️ Upload</a>
-      <a href="#/library" class="${active === "home" ? "" : ""}">📚 Library</a>
+      <a href="#/library">📚 Library</a>`}
     </nav>
-  </header>`;
+  </header>
+  ${DEMO ? `<div class="demo-bar">🧪 <b>Live demo</b>: one pre-analysed match, no uploads. Your review edits stay in this browser.
+    <a href="https://github.com/melloo21/pickleball-analyzer#run" target="_blank" rel="noopener">Run it locally</a> to analyse your own videos.</div>` : ""}`;
 }
 
 /* ------------------------------------------------------------------ router */
@@ -40,6 +43,7 @@ function route() {
   cleanup?.(); cleanup = null;
   viewAC.abort(); viewAC = new AbortController();
   const h = location.hash || "#/";
+  if (DEMO) return jobView("demo");          // the static demo is just the one sample workspace
   const m = h.match(/^#\/job\/([\w-]+)/);
   if (m) return jobView(m[1]);
   return homeView(h.startsWith("#/library"));
@@ -250,20 +254,23 @@ function workspace(job: Job, res: Result, review: Review) {
   <main class="ws">
     <section class="ws-head">
       <div>
-        <a href="#/library" class="back">⬅ Library</a>
+        ${DEMO ? "" : `<a href="#/library" class="back">⬅ Library</a>`}
         <h1 title="${esc(job.name)}">${esc(job.name)}</h1>
         <div class="chips">
           <span class="chip">🟢 ${esc(T.A)} <i>vs</i> 🔵 ${esc(T.B)}</span>
           <span class="chip">${job.scoring === "rally" ? "Rally scoring" : "Side-out scoring"}</span>
           <span class="chip">🎚 ${PRESETS[job.preset] ?? job.preset}</span>
           <span class="chip">📼 ${res.video.width}×${res.video.height} · ${res.video.fps} fps · ${fmtDur(res.video.duration)}</span>
-          <span class="chip saved" id="saved">💾 Saved</span>
+          <span class="chip saved" id="saved">${DEMO ? "💾 Saved in browser" : "💾 Saved"}</span>
         </div>
       </div>
       <div class="actions">
+        ${DEMO ? `<button class="btn" data-a="exportCsv">📄 CSV</button>
+        <button class="btn" data-a="exportJson">🧾 JSON</button>
+        <button class="btn" data-a="resetDemo" title="Undo your edits and go back to the original review">↺ Reset</button>` : `
         <a class="btn" href="/api/jobs/${job.id}/export.csv">📄 CSV</a>
         <a class="btn" href="/api/jobs/${job.id}/export.json">🧾 JSON</a>
-        <select class="btn" id="re"><option value="">🔁 Re-analyze…</option>${Object.entries(PRESETS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
+        <select class="btn" id="re"><option value="">🔁 Re-analyze…</option>${Object.entries(PRESETS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>`}
       </div>
     </section>
 
@@ -340,7 +347,7 @@ function workspace(job: Job, res: Result, review: Review) {
     clearTimeout(saveT);
     saveT = window.setTimeout(async () => {
       await api.saveReview(job.id, { rallies: S.rallies, shots: S.shots, points: S.points, firstServer: S.firstServer });
-      el.textContent = "💾 Saved"; el.classList.remove("dirty");
+      el.textContent = DEMO ? "💾 Saved in browser" : "💾 Saved"; el.classList.remove("dirty");
     }, 500);
   };
 
@@ -589,6 +596,14 @@ function workspace(job: Job, res: Result, review: Review) {
       case "zoom": S.zoom = !S.zoom; $("#zoomBtn").classList.toggle("on", S.zoom); setView(); return draw();
       case "addShot": return addShot();
       case "nextUnchecked": { const n = ordered().find((r) => r.status === "unchecked"); if (n) { select(n.id); vid.play(); } return; }
+      case "exportCsv": return download("dinklab-demo.csv", toCsv(S, T), "text/csv");
+      case "exportJson": return download("dinklab-demo.json",
+        JSON.stringify({ ...res, rallies: S.rallies, shots: S.shots, points: S.points }, null, 1), "application/json");
+      case "resetDemo":
+        if (confirm("Reset the demo? Your checks, labels and point winners in this browser will be cleared.")) {
+          clearTimeout(saveT); api.remove(job.id).then(() => route());
+        }
+        return;
     }
   }, on);
   app.addEventListener("change", (e) => {
